@@ -33,16 +33,15 @@ class Category(UniqueID, TimeStampedModel):
     name = models.CharField(max_length=100, unique=True, verbose_name=_('Category name'))
 
     def __str__(self):
-        return f'Category: {self.name}'
+        return self.name
 
     def __repr__(self):
         return f'<Category(name={self.name})>'
 
     class Meta:
-        db_table = 'categories'
+        db_table = 'task_manager_category'
         verbose_name = 'Category'
         verbose_name_plural = 'Categories'
-        ordering = ('name',)
 
 
 class Task(UniqueID, TimeStampedModel):
@@ -54,14 +53,14 @@ class Task(UniqueID, TimeStampedModel):
     deadline = models.DateTimeField(verbose_name=_('Deadline'))
 
     def __str__(self):
-        return f'Task: {self.title}'
+        return self.title
 
     def __repr__(self):
         return (f'<Task(title={self.title}, description={self.description}, status={self.status},'
                 f'deadline={self.deadline})>')
 
     class Meta:
-        db_table = 'tasks'
+        db_table = 'task_manager_task'
         verbose_name = 'Task'
         verbose_name_plural = 'Tasks'
         ordering = ('-created_at',)
@@ -76,18 +75,17 @@ class SubTask(UniqueID, TimeStampedModel):
     deadline = models.DateTimeField(verbose_name=_('Deadline'))
 
     def __str__(self):
-        return f'SubTask: {self.title} ({self.task.title})'
+        return self.title
 
     def __repr__(self):
         return (f'<SubTask(title={self.title}, description={self.description}, status={self.status},'
                 f'deadline={self.deadline}, task={self.task})>')
 
     class Meta:
-        db_table = 'subtasks'
+        db_table = 'task_manager_subtask'
         verbose_name = 'SubTask'
         verbose_name_plural = 'SubTasks'
         ordering = ('-created_at',)
-        unique_together = ('title', 'task')
 
 
 from django.db import models
