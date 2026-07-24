@@ -60,8 +60,7 @@ def delete_records():
     print(f"\nDeleted items: {deleted_count}, details: {deleted_details}")
 
 
-if __name__ == "__main__":
-    # create_records()
-    # read_records()
-    # update_records()
-    delete_records()
+# create_records()
+# read_records()
+# update_records()
+delete_records()
