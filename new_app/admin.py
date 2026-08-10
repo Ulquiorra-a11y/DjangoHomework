@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from new_app.models import Category, SubTask, Task
+from new_app.models import Category, SubTask, Task, Statuses
 
 
 class SubTaskInline(admin.TabularInline):
@@ -24,6 +24,12 @@ class TaskAdmin(admin.ModelAdmin):
     date_hierarchy = ('deadline')
     inlines = [SubTaskInline]
 
+    @admin.display(description='Title')
+    def short_title(self, object):
+        if len(object.title) > 10:
+            return f'{object.title[:10]}...'
+        return object.title
+
 
 @admin.register(SubTask)
 class SubTaskAdmin(admin.ModelAdmin):
@@ -32,7 +38,8 @@ class SubTaskAdmin(admin.ModelAdmin):
     search_fields = ('title', 'description')
     autocomplete_fields = ['task']
 
+    @admin.action(description="Set SubTask's status to DONE")
+    def status(self, queryset):
+        queryset.update(status=Statuses.DONE)
 
-from django.contrib import admin
-
-# Register your models here.
+    actions = [status]
