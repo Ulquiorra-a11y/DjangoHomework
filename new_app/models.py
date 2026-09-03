@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 
@@ -29,8 +30,20 @@ class TimeStampedModel(models.Model):
         abstract = True
 
 
+class CategoryManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=False)
+
+
 class Category(UniqueID, TimeStampedModel):
     name = models.CharField(max_length=100, unique=True, verbose_name=_('Category name'))
+    is_deleted = models.BooleanField(default=False, verbose_name='Is deleted')
+
+    def delete(self, *args, **kwargs):
+        self.is_deleted = True
+        self.deleted_at = timezone.now()
+        self.save(update_fields=['is_deleted', 'deleted_at', 'updated_at'])
+        return 1, {self._meta.label: 1}
 
     def __str__(self):
         return self.name
