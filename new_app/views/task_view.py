@@ -1,25 +1,49 @@
+from django.db.models.functions import ExtractWeekDay
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, RetrieveUpdateAPIView,ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView
 from new_app.models import Task, Statuses
-from new_app.serializers.task import TaskSerializer
+from new_app.serializers.task import TaskSerializer,TaskDetailSerializer
 from django.db.models import Count, Q
 from django.utils import timezone
 
 
-class TaskList(APIView):
-    def get(self, request):
-        tasks = Task.objects.all()
-        serializer = TaskSerializer(tasks, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request):
-        serializer = TaskSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+WEEKDAY = {
+    'sunday': 1,
+    'monday': 2,
+    'tuesday': 3,
+    'wednesday': 4,
+    'thursday': 5,
+    'friday': 6,
+    'saturday': 7
+}
+
+class TaskListView(ListAPIView):
+    serializer_class = TaskSerializer
+
+    def get_queryset(self):
+        queryset = Task.objects.all()
+        day_param = self.request.query_params.get('day')
+
+        if not day_param:
+            return queryset
+
+        weekday_number = WEEKDAY.get(day_param.strip().lower())
+        if weekday_number is None:
+            raise ValidationError(f"Invalid day: '{day_param}'.")
+
+        return queryset.annotate(
+            deadline_weekday=ExtractWeekDay('deadline')
+        ).filter(deadline_weekday=weekday_number)
+
+
+class TaskDetailView(RetrieveUpdateAPIView):
+    queryset = Task.objects.all()
+    serializer_class = TaskDetailSerializer
+    lookup_field = 'pk'
 
 
 class TaskDetail(APIView):

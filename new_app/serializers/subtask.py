@@ -3,10 +3,11 @@ from new_app.models import SubTask
 
 
 class SubTaskSerializer(serializers.ModelSerializer):
+    task_title = serializers.CharField(source='task.title', read_only=True)
 
     class Meta:
         model = SubTask
-        fields = ('id', 'title', 'description', 'status', 'deadline', 'created_at', 'updated_at')
+        fields = ('id', 'title', 'description', 'status', 'deadline', 'created_at', 'updated_at', 'task_title')
 
 
 class SubTaskCreateSerializer(serializers.ModelSerializer):
