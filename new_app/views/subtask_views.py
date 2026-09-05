@@ -11,11 +11,10 @@ from new_app.serializers.subtask import SubTaskCreateSerializer, SubTaskSerializ
 
 
 
-class SubTaskPagination(PageNumberPagination):
-    page_size = 5
+
 
 class SubTaskListCreateView(ListCreateAPIView):
-    pagination_class = SubTaskPagination
+
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['status', 'deadline']
     search_fields = ['title', 'description']
