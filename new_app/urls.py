@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
+from new_app.views.auth_views import RegisterView, CookieTokenObtainPairView, CookieTokenRefreshView, LogoutView
 from new_app.views.task_view import TaskListView, TaskDetailView, TaskStatistics
 from new_app.views.subtask_views import SubTaskListCreateView, SubTaskDetailView
 from new_app.views.category_views import CategoryViewSet
@@ -15,5 +16,9 @@ urlpatterns = [
     path('tasks/statistics/', TaskStatistics.as_view(), name='task-statistics'),
     path('subtasks/', SubTaskListCreateView.as_view(), name='subtask-list' ),
     path('subtasks/<uuid:pk>/', SubTaskDetailView.as_view(), name='subtask-detail' ),
+    path('register/', RegisterView.as_view(), name='auth-register'),
+    path('login/', CookieTokenObtainPairView.as_view(), name='auth-login'),
+    path('auth/token/refresh/', CookieTokenRefreshView.as_view(), name='auth-token-refresh'),
+    path('logout/', LogoutView.as_view(), name='auth-logout'),
 
 ]
