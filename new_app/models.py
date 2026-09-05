@@ -1,5 +1,6 @@
 import uuid
 
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -64,6 +65,8 @@ class Task(UniqueID, TimeStampedModel):
     status = models.CharField(max_length=15, choices=Statuses, default=Statuses.NEW,
                               verbose_name=_('Status'))
     deadline = models.DateTimeField(verbose_name=_('Deadline'))
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name='owned_tasks',null=True,
+                                blank=True,verbose_name='Owner',)
 
     def __str__(self):
         return self.title
@@ -86,6 +89,8 @@ class SubTask(UniqueID, TimeStampedModel):
     status = models.CharField(max_length=15, choices=Statuses, default=Statuses.NEW,
                               verbose_name=_('Status'))
     deadline = models.DateTimeField(verbose_name=_('Deadline'))
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='owned_subtasks', null=True,
+                              blank=True, verbose_name='Owner', )
 
     def __str__(self):
         return self.title

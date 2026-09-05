@@ -7,7 +7,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from new_app.models import SubTask
+from new_app.permission import IsCustomerOrReadOnly
 from new_app.serializers.subtask import SubTaskCreateSerializer, SubTaskSerializer
+
 
 
 
@@ -26,6 +28,9 @@ class SubTaskListCreateView(ListCreateAPIView):
             return SubTaskSerializer
         return SubTaskCreateSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
     def get_queryset(self):
         queryset = SubTask.objects.all().order_by('-created_at')
         task_title = self.request.query_params.get('task_title')
@@ -43,4 +48,5 @@ class SubTaskListCreateView(ListCreateAPIView):
 class SubTaskDetailView(RetrieveUpdateDestroyAPIView):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskCreateSerializer
+    permission_classes = [IsCustomerOrReadOnly]
 

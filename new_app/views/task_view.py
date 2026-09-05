@@ -1,6 +1,6 @@
 from django.db.models.functions import ExtractWeekDay
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, PermissionDenied
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -8,6 +8,7 @@ from rest_framework import status
 from rest_framework.generics import get_object_or_404, RetrieveUpdateAPIView, ListAPIView, RetrieveAPIView, \
     CreateAPIView, UpdateAPIView, RetrieveUpdateDestroyAPIView, ListCreateAPIView
 from new_app.models import Task, Statuses
+from new_app.permission import IsCustomerOrReadOnly
 from new_app.serializers.task import TaskSerializer, TaskDetailSerializer, TaskCreateSerializer
 from django.db.models import Count, Q
 from django.utils import timezone
@@ -27,7 +28,7 @@ WEEKDAY = {
 class TaskListView(ListCreateAPIView):
     serializer_class = TaskSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['status', 'deadline']
+    filterset_fields = ['status', 'deadline', 'owner']
     search_fields = ['title', 'description']
     ordering_fields = ['created_at']
     ordering = ['-created_at']
@@ -36,6 +37,9 @@ class TaskListView(ListCreateAPIView):
         if self.request.method == 'GET':
             return TaskSerializer
         return TaskCreateSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
     def get_queryset(self):
         queryset = Task.objects.all()
@@ -59,6 +63,7 @@ class TaskListView(ListCreateAPIView):
 class TaskDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskDetailSerializer
+    permission_classes = [IsCustomerOrReadOnly]
 
 
 
